@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import DashboardStats from '@/components/DashboardStats';
 import FoodItemCard from '@/components/FoodItemCard';
 import AddFoodItemForm from '@/components/AddFoodItemForm';
