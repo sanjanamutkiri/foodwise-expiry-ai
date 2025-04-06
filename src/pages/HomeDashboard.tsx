@@ -11,7 +11,11 @@ import AddFoodItemForm from '@/components/AddFoodItemForm';
 import ExpiryWarnings from '@/components/ExpiryWarnings';
 import MealSuggestions from '@/components/MealSuggestions';
 import BarcodeScannerPlaceholder from '@/components/BarcodeScannerPlaceholder';
+import BudgetTracker from '@/components/BudgetTracker';
+import GroceryList from '@/components/GroceryList';
+import QuickActions from '@/components/restaurant/QuickActions';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
 // Mock data for initial state
@@ -68,9 +72,129 @@ const mockMealSuggestions = [
   }
 ];
 
+// Mock expense data for budget tracker
+const initialExpenses = [
+  {
+    id: uuidv4(),
+    name: 'Milk',
+    category: 'Dairy & Eggs',
+    amount: 52.00,
+    date: new Date(new Date().setDate(new Date().getDate() - 1))
+  },
+  {
+    id: uuidv4(),
+    name: 'Chicken Breast',
+    category: 'Meat & Seafood',
+    amount: 220.00,
+    date: new Date(new Date().setDate(new Date().getDate() - 2))
+  },
+  {
+    id: uuidv4(),
+    name: 'Apples',
+    category: 'Fruits & Vegetables',
+    amount: 150.00,
+    date: new Date(new Date().setDate(new Date().getDate() - 3))
+  },
+  {
+    id: uuidv4(),
+    name: 'Bread',
+    category: 'Bakery',
+    amount: 45.00,
+    date: new Date(new Date().setDate(new Date().getDate() - 1))
+  },
+  {
+    id: uuidv4(),
+    name: 'Rice',
+    category: 'Pantry Staples',
+    amount: 75.00,
+    date: new Date(new Date().setDate(new Date().getDate() - 4))
+  }
+];
+
+// Mock data for previous purchases and suggested grocery list
+const initialSuggestedGroceryItems = [
+  {
+    id: uuidv4(),
+    name: 'Milk',
+    quantity: 2,
+    unit: 'l',
+    isChecked: false,
+    frequency: 4
+  },
+  {
+    id: uuidv4(),
+    name: 'Bread',
+    quantity: 1,
+    unit: 'loaf',
+    isChecked: false,
+    frequency: 3
+  },
+  {
+    id: uuidv4(),
+    name: 'Eggs',
+    quantity: 12,
+    unit: 'pcs',
+    isChecked: false,
+    frequency: 2
+  }
+];
+
+const pastPurchases = [
+  {
+    id: uuidv4(),
+    name: 'Milk',
+    category: 'Dairy & Eggs',
+    expiryDate: new Date(),
+    quantity: 2,
+    unit: 'l'
+  },
+  {
+    id: uuidv4(),
+    name: 'Bread',
+    category: 'Bakery',
+    expiryDate: new Date(),
+    quantity: 1,
+    unit: 'loaf'
+  },
+  {
+    id: uuidv4(),
+    name: 'Rice',
+    category: 'Pantry Staples',
+    expiryDate: new Date(),
+    quantity: 1,
+    unit: 'kg'
+  },
+  {
+    id: uuidv4(),
+    name: 'Eggs',
+    category: 'Dairy & Eggs',
+    expiryDate: new Date(),
+    quantity: 12,
+    unit: 'pcs'
+  },
+  {
+    id: uuidv4(),
+    name: 'Onions',
+    category: 'Fruits & Vegetables',
+    expiryDate: new Date(),
+    quantity: 1,
+    unit: 'kg'
+  },
+  {
+    id: uuidv4(),
+    name: 'Tomatoes',
+    category: 'Fruits & Vegetables',
+    expiryDate: new Date(),
+    quantity: 0.5,
+    unit: 'kg'
+  }
+];
+
 const HomeDashboard = () => {
   const [foodItems, setFoodItems] = useState(initialFoodItems);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expenses, setExpenses] = useState(initialExpenses);
+  const [suggestedGroceryItems, setSuggestedGroceryItems] = useState(initialSuggestedGroceryItems);
   
   const addFoodItem = (item) => {
     const newItem = {
@@ -78,6 +202,31 @@ const HomeDashboard = () => {
       id: uuidv4(),
     };
     setFoodItems([...foodItems, newItem]);
+    
+    // Add an expense entry when adding a food item
+    const newExpense = {
+      id: uuidv4(),
+      name: item.name,
+      category: item.category,
+      amount: Math.floor(Math.random() * 100) + 20, // Mock amount between 20-120
+      date: new Date()
+    };
+    setExpenses([...expenses, newExpense]);
+  };
+  
+  const addMultipleFoodItems = (items) => {
+    setFoodItems([...foodItems, ...items]);
+    
+    // Add expense entries for added items
+    const newExpenses = items.map(item => ({
+      id: uuidv4(),
+      name: item.name,
+      category: item.category,
+      amount: Math.floor(Math.random() * 100) + 20, // Mock amount between 20-120
+      date: new Date()
+    }));
+    
+    setExpenses([...expenses, ...newExpenses]);
   };
   
   const deleteFoodItem = (id) => {
@@ -87,6 +236,19 @@ const HomeDashboard = () => {
   const editFoodItem = (id) => {
     console.log('Editing item', id);
     // Will be implemented in the next iteration
+  };
+  
+  // Handle quick actions
+  const handleInventoryReport = () => {
+    window.location.href = '/inventory-report';
+  };
+  
+  const handleGetMealSuggestions = () => {
+    toast.info("Meal suggestions are displayed in the dashboard below.");
+  };
+  
+  const handleExpiredFoodAdvice = () => {
+    toast.info("Check the advice section for tips on handling expired food.");
   };
   
   // Filter items based on search query
@@ -163,6 +325,15 @@ const HomeDashboard = () => {
                 <ExpiryWarnings items={warningItems} />
               </div>
             )}
+            
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <BudgetTracker expenses={expenses} weeklyBudget={1500} />
+              <GroceryList 
+                suggestedItems={suggestedGroceryItems} 
+                pastPurchases={pastPurchases}
+                onAddToInventory={addMultipleFoodItems}
+              />
+            </div>
             
             <div className="mt-8">
               <Tabs defaultValue="all">
@@ -268,7 +439,12 @@ const HomeDashboard = () => {
           </div>
           
           <div className="md:col-span-1 space-y-6">
-            <BarcodeScannerPlaceholder />
+            <QuickActions 
+              handleInventoryReport={handleInventoryReport}
+              handleGetMealSuggestions={handleGetMealSuggestions}
+              handleExpiredFoodAdvice={handleExpiredFoodAdvice}
+              onAddItem={addFoodItem}
+            />
             
             <Card className="p-4 border-primary/20 bg-primary/5">
               <h3 className="font-medium mb-2">Tips to Reduce Food Waste</h3>
