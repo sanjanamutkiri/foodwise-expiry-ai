@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import { Card } from '@/components/ui/card';
@@ -200,6 +199,7 @@ const RestaurantDashboard = () => {
               handleInventoryReport={handleInventoryReport}
               handleGetMealSuggestions={handleGetMealSuggestions}
               handleExpiredFoodAdvice={handleExpiredFoodAdvice}
+              onAddItem={addInventoryItem}
             />
             
             <StorageTips />

@@ -1,21 +1,27 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Mic, ScanBarcode } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import VoiceScanPlaceholder from '@/components/VoiceScanPlaceholder';
 
 interface QuickActionsProps {
   handleInventoryReport: () => void;
   handleGetMealSuggestions: () => void;
   handleExpiredFoodAdvice: () => void;
+  onAddItem?: (item: any) => void;
 }
 
 const QuickActions: React.FC<QuickActionsProps> = ({ 
   handleInventoryReport, 
   handleGetMealSuggestions,
-  handleExpiredFoodAdvice 
+  handleExpiredFoodAdvice,
+  onAddItem
 }) => {
+  const [voiceDialogOpen, setVoiceDialogOpen] = useState(false);
+  
   return (
     <Card className="p-4">
       <h3 className="font-medium mb-3">Quick Actions</h3>
@@ -26,7 +32,11 @@ const QuickActions: React.FC<QuickActionsProps> = ({
           Inventory Report
         </Button>
         
-        <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Voice scanning feature coming soon!")}>
+        <Button 
+          variant="outline" 
+          className="w-full justify-start" 
+          onClick={() => setVoiceDialogOpen(true)}
+        >
           <Mic className="w-4 h-4 mr-2" />
           Voice Scan
         </Button>
@@ -50,6 +60,12 @@ const QuickActions: React.FC<QuickActionsProps> = ({
           Expired Food Advice
         </Button>
       </div>
+      
+      <Dialog open={voiceDialogOpen} onOpenChange={setVoiceDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <VoiceScanPlaceholder onAddItem={onAddItem} />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
