@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,28 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// FoodWise custom colors
+				fresh: {
+					DEFAULT: '#4CAF50', // Green for fresh items
+					light: '#8BC34A',
+					dark: '#2E7D32',
+				},
+				warning: {
+					DEFAULT: '#FF9800', // Orange for items nearing expiry
+					light: '#FFB74D',
+					dark: '#EF6C00',
+				},
+				expired: {
+					DEFAULT: '#F44336', // Red for expired items
+					light: '#EF9A9A',
+					dark: '#C62828',
+				},
+				info: {
+					DEFAULT: '#2196F3', // Blue for interactive elements
+					light: '#90CAF9',
+					dark: '#1565C0',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
