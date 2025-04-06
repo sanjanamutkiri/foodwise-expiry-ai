@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import HomeDashboard from "./pages/HomeDashboard";
 import RestaurantDashboard from "./pages/RestaurantDashboard";
+import InventoryReport from "./pages/InventoryReport";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance outside of the component
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/home-dashboard" element={<HomeDashboard />} />
           <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
+          <Route path="/inventory-report" element={<InventoryReport />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

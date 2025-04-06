@@ -9,64 +9,69 @@ import DashboardStats from '@/components/DashboardStats';
 import FoodItemCard from '@/components/FoodItemCard';
 import AddFoodItemForm from '@/components/AddFoodItemForm';
 import ExpiryWarnings from '@/components/ExpiryWarnings';
-import { Search } from 'lucide-react';
+import { Search, Mic, ScanBarcode, FileText } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
+import VoiceScanPlaceholder from '@/components/VoiceScanPlaceholder';
+import ExpiredFoodAdvice from '@/components/ExpiredFoodAdvice';
 
-// Mock data for initial restaurant inventory state
+// Mock data for initial restaurant inventory with Indian food items
 const initialInventoryItems = [
   {
     id: uuidv4(),
-    name: 'Chicken Thighs',
-    category: 'Meat & Seafood',
+    name: 'Paneer',
+    category: 'Dairy & Paneer',
     expiryDate: new Date(new Date().setDate(new Date().getDate() + 2)),
-    quantity: 5,
-    unit: 'kg'
-  },
-  {
-    id: uuidv4(),
-    name: 'Heavy Cream',
-    category: 'Dairy & Eggs',
-    expiryDate: new Date(new Date().setDate(new Date().getDate() + 3)),
-    quantity: 2,
-    unit: 'l'
-  },
-  {
-    id: uuidv4(),
-    name: 'Bell Peppers',
-    category: 'Fruits & Vegetables',
-    expiryDate: new Date(new Date().setDate(new Date().getDate() + 4)),
     quantity: 3,
     unit: 'kg'
   },
   {
     id: uuidv4(),
-    name: 'Salmon Fillets',
-    category: 'Meat & Seafood',
-    expiryDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    name: 'Ghee',
+    category: 'Dairy & Fats',
+    expiryDate: new Date(new Date().setDate(new Date().getDate() + 14)),
     quantity: 2,
     unit: 'kg'
   },
   {
     id: uuidv4(),
-    name: 'Mixed Greens',
-    category: 'Fruits & Vegetables',
-    expiryDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-    quantity: 1,
+    name: 'Ginger-Garlic Paste',
+    category: 'Condiments',
+    expiryDate: new Date(new Date().setDate(new Date().getDate() + 10)),
+    quantity: 0.5,
     unit: 'kg'
   },
   {
     id: uuidv4(),
-    name: 'Tomato Sauce',
-    category: 'Pantry Items',
-    expiryDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-    quantity: 10,
-    unit: 'l'
+    name: 'Basmati Rice',
+    category: 'Grains & Rice',
+    expiryDate: new Date(new Date().setDate(new Date().getDate() + 120)),
+    quantity: 5,
+    unit: 'kg'
+  },
+  {
+    id: uuidv4(),
+    name: 'Fresh Coriander',
+    category: 'Herbs & Greens',
+    expiryDate: new Date(new Date().setDate(new Date().getDate() - 1)),
+    quantity: 0.2,
+    unit: 'kg'
+  },
+  {
+    id: uuidv4(),
+    name: 'Garam Masala',
+    category: 'Spices',
+    expiryDate: new Date(new Date().setDate(new Date().getDate() + 60)),
+    quantity: 0.5,
+    unit: 'kg'
   }
 ];
 
 const RestaurantDashboard = () => {
   const [inventoryItems, setInventoryItems] = useState(initialInventoryItems);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showMealSuggestions, setShowMealSuggestions] = useState(false);
+  const [showExpiredFoodAdvice, setShowExpiredFoodAdvice] = useState(false);
   
   const addInventoryItem = (item) => {
     const newItem = {
@@ -121,6 +126,19 @@ const RestaurantDashboard = () => {
     }))
     .sort((a, b) => a.daysLeft - b.daysLeft);
   
+  const handleInventoryReport = () => {
+    toast.success("Generating inventory report...");
+    window.open("/inventory-report", "_blank");
+  };
+
+  const handleGetMealSuggestions = () => {
+    setShowMealSuggestions(true);
+  };
+
+  const handleExpiredFoodAdvice = () => {
+    setShowExpiredFoodAdvice(true);
+  };
+  
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -159,6 +177,33 @@ const RestaurantDashboard = () => {
                 <ExpiryWarnings items={warningItems} />
               </div>
             )}
+
+            {showMealSuggestions && (
+              <div className="mt-6">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="text-lg font-semibold mb-3">Meal Suggestions</h3>
+                    <div className="space-y-2">
+                      <p>Based on your inventory, you could make:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>Paneer Butter Masala (using Paneer and Garam Masala)</li>
+                        <li>Jeera Rice (using Basmati Rice and spices)</li>
+                        <li>Masala Chai (using Tea leaves and spices)</li>
+                      </ul>
+                      <Button 
+                        variant="outline" 
+                        className="mt-2"
+                        onClick={() => setShowMealSuggestions(false)}
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {showExpiredFoodAdvice && <ExpiredFoodAdvice onClose={() => setShowExpiredFoodAdvice(false)} />}
             
             <div className="mt-8">
               <Tabs defaultValue="all">
@@ -264,25 +309,33 @@ const RestaurantDashboard = () => {
               <h3 className="font-medium mb-3">Quick Actions</h3>
               
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start" onClick={() => alert('Feature coming soon!')}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                  </svg>
-                  Scan Invoice
+                <Button variant="outline" className="w-full justify-start" onClick={handleInventoryReport}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Inventory Report
                 </Button>
                 
-                <Button variant="outline" className="w-full justify-start" onClick={() => alert('Feature coming soon!')}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
+                <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Voice scanning feature coming soon!")}>
+                  <Mic className="w-4 h-4 mr-2" />
+                  Voice Scan
+                </Button>
+                
+                <Button variant="outline" className="w-full justify-start" onClick={() => toast.info("Barcode scanning feature coming soon!")}>
+                  <ScanBarcode className="w-4 h-4 mr-2" />
                   Scan Barcode
                 </Button>
-                
-                <Button variant="outline" className="w-full justify-start" onClick={() => alert('Feature coming soon!')}>
+
+                <Button variant="outline" className="w-full justify-start" onClick={handleGetMealSuggestions}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.375H3" />
                   </svg>
-                  Inventory Report
+                  Get Meal Suggestions
+                </Button>
+                
+                <Button variant="outline" className="w-full justify-start" onClick={handleExpiredFoodAdvice}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                  </svg>
+                  Expired Food Advice
                 </Button>
               </div>
             </Card>
@@ -304,7 +357,7 @@ const RestaurantDashboard = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     </div>
-                    Store dairy products at the back of the refrigerator
+                    Store paneer in brine water for longer shelf life
                   </li>
                   <li className="flex items-start gap-2">
                     <div className="rounded-full bg-fresh/20 p-0.5 mt-0.5">
@@ -312,7 +365,7 @@ const RestaurantDashboard = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     </div>
-                    Keep raw meats on the bottom shelf
+                    Store spices in airtight containers away from heat
                   </li>
                   <li className="flex items-start gap-2">
                     <div className="rounded-full bg-fresh/20 p-0.5 mt-0.5">
@@ -320,7 +373,7 @@ const RestaurantDashboard = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     </div>
-                    Rotate freezer items regularly
+                    Keep coriander in water to extend freshness
                   </li>
                 </ul>
               </CardContent>
